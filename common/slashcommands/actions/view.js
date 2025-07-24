@@ -88,7 +88,7 @@ class Command extends SlashCommand {
 			})
 		}
 
-		console.log(embeds);
+		// Debug logging removed - use logger.debug if needed
 		return embeds;
 	}
 

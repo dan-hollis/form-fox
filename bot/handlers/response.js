@@ -49,14 +49,14 @@ class ResponseHandler {
 	async startResponse(ctx) {
 		var {user, form, cfg} = ctx;
 
-		log.info('Starting form response', { 
+		logger.info('Starting form response', { 
 			userId: user.id, 
 			formId: form.hid, 
 			guildId: form.server_id 
 		});
 
 		if(!form.open) {
-			log.warn('Form response denied - form closed', { 
+			logger.warn('Form response denied - form closed', { 
 				userId: user.id, 
 				formId: form.hid 
 			});
@@ -64,7 +64,7 @@ class ResponseHandler {
 		}
 
 		if(!form.channel_id && !cfg?.response_channel) {
-			log.warn('Form response denied - no response channel', { 
+			logger.warn('Form response denied - no response channel', { 
 				userId: user.id, 
 				formId: form.hid 
 			});
@@ -72,7 +72,7 @@ class ResponseHandler {
 		}
 
 		if(!form.questions?.[0]) {
-			log.warn('Form response denied - no questions', { 
+			logger.warn('Form response denied - no questions', { 
 				userId: user.id, 
 				formId: form.hid 
 			});
@@ -84,7 +84,7 @@ class ResponseHandler {
 			var dm = await user.createDM();
 			var existing = await this.bot.stores.openResponses.get(dm.id);
 			if(existing?.id) {
-				log.info('Form response denied - user has open response', { 
+				logger.info('Form response denied - user has open response', { 
 					userId: user.id, 
 					existingFormId: existing.form 
 				});
@@ -96,7 +96,7 @@ class ResponseHandler {
 				if(past && past.status == 'denied') {
 					var diff = this.bot.utils.dayDiff(new Date(), past.received.getTime() + (form.cooldown * 24 * 60 * 60 * 1000));
 					if(diff > 0) {
-						log.info('Form response denied - cooldown active', { 
+						logger.info('Form response denied - cooldown active', { 
 							userId: user.id, 
 							formId: form.hid,
 							daysRemaining: diff
@@ -109,7 +109,7 @@ class ResponseHandler {
 			// Check if user has a pending response for this specific form
 			var hasPending = await this.bot.stores.responses.hasPendingResponse(form.server_id, user.id, form.hid);
 			if(hasPending) {
-				log.info('Form response denied - pending response exists', { 
+				logger.info('Form response denied - pending response exists', { 
 					userId: user.id, 
 					formId: form.hid 
 				});

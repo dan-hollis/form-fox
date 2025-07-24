@@ -100,15 +100,12 @@ class ActionHandler {
 					response: ctx.response ?? ctx
 				})
 			} catch(e) {
-				console.error(
-					'ACTION ERROR',
-					{
-						type: item.type,
-						message: e.message ?? e,
-						guild: guild.id,
-						form: form.hid
-					}
-				)
+				logger.error('Action handler error', {
+					type: item.type,
+					message: e.message ?? e,
+					guild: guild.id,
+					form: form.hid
+				})
 			}
 		}
 	}

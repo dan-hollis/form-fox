@@ -72,7 +72,7 @@ class HookStore extends DataStore {
 			[data.server_id, data.form,
 			 data.url, data.events]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Hooks store error (create): ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -91,7 +91,7 @@ class HookStore extends DataStore {
 			[server, form,
 			 data.url, data.events]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Hooks store error (update): ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -107,7 +107,7 @@ class HookStore extends DataStore {
 				AND hid = $3
 			`,[server, form, hid]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Hooks store error (getID): ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -123,7 +123,7 @@ class HookStore extends DataStore {
 				WHERE id = $1
 			`,[id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Hooks store error (getID): ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -140,7 +140,7 @@ class HookStore extends DataStore {
 				AND form = $2
 			`,[server, form]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Hooks store error (getByForm): ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -153,7 +153,7 @@ class HookStore extends DataStore {
 		try {
 			await this.db.query(`UPDATE hooks SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE server = $1`,[id, ...Object.values(data)]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Hooks store error (update): ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -167,7 +167,7 @@ class HookStore extends DataStore {
 				WHERE id = $1
 			`, [id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Hooks store error (delete): ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -182,7 +182,7 @@ class HookStore extends DataStore {
 				AND form = $2
 			`, [server, form]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Hooks store error (deleteAll): ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		

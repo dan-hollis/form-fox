@@ -80,7 +80,7 @@ class Command extends SlashCommand {
 			}
 		})
 
-		console.log(comps)
+		// Debug logging removed - use logger.debug if needed
 
 		return comps.map(c => ({
 			components: [{

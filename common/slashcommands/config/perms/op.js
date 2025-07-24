@@ -48,11 +48,7 @@ class Command extends SlashCommand {
 		var cfg = await this.#stores.configs.get(ctx.guild.id);
 		var opped = cfg?.opped ?? {users: [], roles: []};
 		var obj = {};
-		console.log(
-			`Constructor name: ${target.constructor.name}`,
-			`\nClass:`, Role,
-			`\nInstance? ${target instanceof Role}`
-		)
+		// Debug logging removed - use logger.debug if needed
 		if(!(
 			target instanceof User ||
 			target instanceof GuildMember ||
