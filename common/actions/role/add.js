@@ -24,7 +24,24 @@ module.exports = {
 	},
 
 	async handler(ctx) {
-		var { member, action } = ctx;
+		var { member, action, guild } = ctx;
+
+		// Check bot permissions before attempting role assignment
+		var botMember = await guild.members.fetch(guild.client.user.id);
+		if(!botMember.permissions.has('ManageRoles')) {
+			throw new Error('Bot missing "Manage Roles" permission');
+		}
+
+		// Check role hierarchy - bot's highest role must be above target roles
+		var botHighestRole = botMember.roles.highest;
+		for(var roleId of action.data.roles) {
+			var targetRole = guild.roles.cache.get(roleId);
+			if(!targetRole) continue;
+			
+			if(targetRole.position >= botHighestRole.position) {
+				throw new Error(`Role "${targetRole.name}" is higher than or equal to bot's highest role in hierarchy`);
+			}
+		}
 
 		await member.roles.add(action.data.roles);
 	},

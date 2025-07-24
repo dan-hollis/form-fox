@@ -1,4 +1,5 @@
 const { Models: { SlashCommand } } = require('frame');
+const { confBtns } = require('../../extras');
 
 class Command extends SlashCommand {
 	#bot;
@@ -40,7 +41,7 @@ class Command extends SlashCommand {
 		var aid = ctx.options.getString('action')?.toLowerCase().trim();
 
 		if(aid) {
-			var action = await this.#stores.actions.get(ctx.guild.id, form.hid, aid);
+			var action = await this.#stores.actions.get(ctx.guild.id, aid);
 			if(!action) return "Action not found!";
 
 			var msg = await ctx.reply({
@@ -48,6 +49,10 @@ class Command extends SlashCommand {
 					"Are you sure you want to delete this action on this form?\n" +
 					"This can't be undone!"
 				),
+				components: [{
+					type: 1,
+					components: confBtns
+				}],
 				fetchReply: true
 			})
 			var resp = await this.#bot.utils.getConfirmation(this.#bot, msg, ctx.user);
@@ -61,6 +66,10 @@ class Command extends SlashCommand {
 					"Are you sure you want to delete ALL actions on this form?\n" +
 					"This can't be undone!"
 				),
+				components: [{
+					type: 1,
+					components: confBtns
+				}],
 				fetchReply: true
 			})
 			var resp = await this.#bot.utils.getConfirmation(this.#bot, msg, ctx.user);

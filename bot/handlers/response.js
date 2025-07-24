@@ -386,14 +386,33 @@ class ResponseHandler {
 			components: [{type: 1, components: CONF}]
 		})
 
-		var confirm = await this.bot.utils.getConfirmation(this.bot, message, user);
-		await m.edit({
-			components: [{
-				type: 1, 
-				components: CONF.map(b => ({...b, disabled: true}))
-			}]
-		});
-		if(confirm.msg) return confirm;
+		// Simple DM-safe confirmation
+		var confirmed = false;
+		try {
+			var confirmation = await m.awaitMessageComponent({
+				filter: i => i.user?.id === user?.id,
+				time: 30000
+			});
+			
+			await confirmation.update({
+				components: [{
+					type: 1,
+					components: CONF.map(b => ({...b, disabled: true}))
+				}]
+			});
+
+			confirmed = confirmation.customId === 'yes';
+		} catch(e) {
+			await m.edit({
+				components: [{
+					type: 1,
+					components: CONF.map(b => ({...b, disabled: true}))
+				}]
+			});
+			return {msg: 'Confirmation timed out!'};
+		}
+
+		if(!confirmed) return {msg: 'Action cancelled!'};
 
 		try {
 			await response.delete();
@@ -462,7 +481,7 @@ class ResponseHandler {
 			components: [{type: 1, components: CONF}]
 		});
 
-		var confirm = await this.bot.utils.getConfirmation(this.bot, m, user);
+		var confirm = await this.bot.utils.getConfirmation(this.bot, message, user);
 		await m.edit({
 			components: [{
 				type: 1, 
@@ -606,6 +625,7 @@ class ResponseHandler {
 			case 'answer':
 				var questions = form.resolved?.questions ?? await form.getQuestions();
 				if(questions.length < response.answers.length + 1) return;
+				if(!question) return; // No more questions to answer
 				var type = TYPES[question.type];
 
 				var res2 = await type.handle({
@@ -667,7 +687,7 @@ class ResponseHandler {
 		var act = Object.keys(ACTIONS).find(k => ACTIONS[k].includes(content));
 		if(!act) act = 'answer';
 		return await this.handleAnswer({
-			user: message.author.user,
+			user: message.author,
 			message,
 			prompt,
 			response,
@@ -675,7 +695,7 @@ class ResponseHandler {
 			question,
 			config,
 			action: act,
-			data: ['att', 'img', 'text'].includes(question.type) ? message : message.content
+			data: (question && ['att', 'img', 'text'].includes(question.type)) ? message : message.content
 		})
 	}
 

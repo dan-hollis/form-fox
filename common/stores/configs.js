@@ -38,6 +38,7 @@ class ConfigStore extends DataStore {
 			opped 				JSONB,
 			ticket_category 	TEXT,
 			ticket_message		TEXT,
+			ticket_roles		JSONB,
 			autodm 				TEXT,
 			autothread			BOOLEAN
 		)`)

@@ -23,6 +23,7 @@ const KEYS = {
 	apply_channel: { patch: true },
 	tickets_id: { patch: true },
 	ticket_msg: { patch: true },
+	ticket_roles: { patch: true },
 	post_icon: { patch: true },
 	post_banner: { patch: true },
 	button_text: { patch: true },
@@ -121,7 +122,6 @@ class Form extends DataObject {
 				type: 10,
 				content:
 					`-# ID: ${this.hid} | ` + 
-					`${responses?.length.toString() || '0'} responses | ` +
 					(
 						!this.open ?
 						'this form is not accepting responses right now!' :
@@ -200,7 +200,6 @@ class Form extends DataObject {
 				type: 10,
 				content:
 					`-# ID: ${this.hid} | ` + 
-					`${responses?.length.toString() || '0'} responses | ` +
 					(
 						!this.open ?
 						'this form is not accepting responses right now!' :

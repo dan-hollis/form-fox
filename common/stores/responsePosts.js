@@ -428,13 +428,36 @@ class ResponsePostStore extends DataStore {
 						reason: 'Mod opened ticket for response '+post.response.hid
 					})
 
-					await ch2.lockPermissions(); //get perms from parent category
+					// Start with locked permissions from parent category
+					await ch2.lockPermissions();
 					await sleep(500);
+
+					// Deny @everyone from viewing the channel
+					await ch2.permissionOverwrites.create(msg.guild.roles.everyone, {
+						'ViewChannel': false
+					});
+
+					// Allow the form submitter to view and interact
 					await ch2.permissionOverwrites.create(u2.id, {
 						'ViewChannel': true,
 						'SendMessages': true,
 						'ReadMessageHistory': true
-					})
+					});
+
+					// Add permissions for roles that should access tickets
+					// First check form-specific ticket roles, then fall back to config
+					var ticketRoles = post.response.form.ticket_roles || cfg?.ticket_roles || [];
+					for(var roleId of ticketRoles) {
+						var role = msg.guild.roles.cache.get(roleId);
+						if(role) {
+							await ch2.permissionOverwrites.create(role, {
+								'ViewChannel': true,
+								'SendMessages': true,
+								'ReadMessageHistory': true,
+								'ManageMessages': true
+							});
+						}
+					}
 
 					var tmsg = post.response.form.ticket_msg ?? cfg?.ticket_message;
 					if(tmsg) {
