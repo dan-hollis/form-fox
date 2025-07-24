@@ -1,4 +1,5 @@
 const { Models: { DataStore, DataObject } } = require('frame');
+const logger = require('../logger');
 const { numbers: NUMBERS } = require('../extras');
 const TYPES = require('../questions');
 
@@ -68,7 +69,7 @@ class OpenResponseStore extends DataStore {
              data.user_id, data.form, data.questions || [], 
              data.answers || []]);
         } catch(e) {
-            console.log(e);
+            logger.error(`open responses store error: ${e.message}`);
             return Promise.reject(e.message);
         }
         
@@ -88,7 +89,7 @@ class OpenResponseStore extends DataStore {
             ) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
             [server, channel, message, data.user_id, data.form, data.questions || [], data.answers || []]);
         } catch(e) {
-            console.log(e);
+            logger.error(`open responses store error: ${e.message}`);
             return Promise.reject(e.message);
         }
         
@@ -99,7 +100,7 @@ class OpenResponseStore extends DataStore {
         try {
             var data = await this.db.query(`SELECT * FROM open_responses WHERE channel_id = $1`,[channel]);
         } catch(e) {
-            console.log(e);
+            logger.error(`open responses store error: ${e.message}`);
             return Promise.reject(e.message);
         }
         
@@ -115,7 +116,7 @@ class OpenResponseStore extends DataStore {
         try {
             var data = await this.db.query(`SELECT * FROM open_responses WHERE id = $1`,[id]);
         } catch(e) {
-            console.log(e);
+            logger.error(`open responses store error: ${e.message}`);
             return Promise.reject(e.message);
         }
         
@@ -131,7 +132,7 @@ class OpenResponseStore extends DataStore {
         try {
             await this.db.query(`UPDATE open_responses SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
         } catch(e) {
-            console.log(e);
+            logger.error(`open responses store error: ${e.message}`);
             return Promise.reject(e.message);
         }
 
@@ -142,7 +143,7 @@ class OpenResponseStore extends DataStore {
         try {
             await this.db.query(`DELETE FROM open_responses WHERE id = $1`, [id]);
         } catch(e) {
-            console.log(e);
+            logger.error(`open responses store error: ${e.message}`);
             return Promise.reject(e.message);
         }
         

@@ -18,8 +18,6 @@ module.exports = {
 		if(!Array.isArray(select)) return { success: false, message: select };
 
 		data.roles = select;
-		console.log(data.roles);
-
 		return { success: true, data}
 	},
 

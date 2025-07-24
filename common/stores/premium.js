@@ -1,4 +1,5 @@
 const { Models: { DataObject, DataStore }} = require('frame');
+const logger = require('../logger');
 
 const KEYS = {
 	id: { },
@@ -48,7 +49,7 @@ class PremiumStore extends DataStore {
 			RETURNING id`,
 			[data.guild_id, data.sku, data.entitlement, data.perks, data.ends_at])
 		} catch(e) {
-			console.log(e);
+			logger.error(`premium store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -68,7 +69,7 @@ class PremiumStore extends DataStore {
 			RETURNING id`,
 			[data.guild_id, data.sku, data.entitlement, data.perks, data.ends_at])
 		} catch(e) {
-			console.log(e);
+			logger.error(`premium store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -79,7 +80,7 @@ class PremiumStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM premium WHERE id = $1`, [id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`premium store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -92,7 +93,7 @@ class PremiumStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM premium WHERE hid = $1`,[hid]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`premium store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -105,7 +106,7 @@ class PremiumStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM premium WHERE entitlement = $1`,[id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`premium store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -118,7 +119,7 @@ class PremiumStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM premium WHERE guild_id = $1`,[guild]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`premium store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -131,7 +132,7 @@ class PremiumStore extends DataStore {
 		try {
 			await this.db.query(`UPDATE premium SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`premium store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -142,7 +143,7 @@ class PremiumStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM premium WHERE id = $1`, [id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`premium store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -153,7 +154,7 @@ class PremiumStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM premium WHERE guild_id = $1`, [guild]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`premium store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		

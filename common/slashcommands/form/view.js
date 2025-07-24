@@ -1,4 +1,5 @@
 const { Models: { SlashCommand } } = require('frame');
+const logger = require('../../logger');
 
 class Command extends SlashCommand {
 	#bot;
@@ -45,7 +46,7 @@ class Command extends SlashCommand {
 
 		var form = await this.#stores.forms.get(ctx.guildId, arg);
 		if(!form.id) return 'Form not found!';
-		console.log(form.roles)
+		            logger.debug(`Form roles: ${JSON.stringify(form.roles)}`);
 
 		
 		var emb = await form.getInfo();

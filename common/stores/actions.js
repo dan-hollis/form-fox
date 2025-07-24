@@ -1,4 +1,5 @@
 const { Models: { DataStore, DataObject } } = require('frame');
+const logger = require('../logger');
 
 const KEYS = {
 	id: { },
@@ -49,7 +50,7 @@ class ActionStore extends DataStore {
 			[data.server_id, data.form,
 			 data.type, data.event, data.data, data.priority ?? 1]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Action store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -60,7 +61,7 @@ class ActionStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM actions WHERE server_id = $1 AND hid = $2`,[server, hid]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`actions store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -73,7 +74,7 @@ class ActionStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM actions WHERE server_id = $1 AND form = $2`,[server, fid]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`actions store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -89,7 +90,7 @@ class ActionStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM actions WHERE server_id = $1`,[server]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`actions store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -105,7 +106,7 @@ class ActionStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM actions WHERE id = $1`,[id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`actions store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -118,7 +119,7 @@ class ActionStore extends DataStore {
 		try {
 			await this.db.query(`UPDATE actions SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`actions store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -129,7 +130,7 @@ class ActionStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM actions WHERE id = $1`, [id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`actions store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -140,7 +141,7 @@ class ActionStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM actions WHERE server_id = $1 and form = $2`, [server, fid]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`actions store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -151,7 +152,7 @@ class ActionStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM actions WHERE server_id = $1`, [server]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`actions store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		

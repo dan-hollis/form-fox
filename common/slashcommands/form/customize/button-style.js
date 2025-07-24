@@ -1,5 +1,6 @@
 const { clearBtns } = require('../../../extras');
 const { Models: { SlashCommand } } = require('frame');
+const logger = require('../../../logger');
 
 const COMPS = [
 	{
@@ -90,7 +91,7 @@ class Command extends SlashCommand {
 				}]
 			})
 		} catch(e) {
-			console.log(e.message ?? e);
+			                logger.error(`Button style update error: ${e.message ?? e}`);
 			return "Err: Timed out";
 		}
 

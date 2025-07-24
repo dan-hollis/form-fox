@@ -9,6 +9,7 @@ const {
 } = require(__dirname + '/../../common/extras.js');
 
 const fs = require('fs');
+const logger = require('../../common/logger');
 
 class ActionHandler {
 	constructor(bot, path = (__dirname + '/../../common/actions')) {
@@ -23,7 +24,7 @@ class ActionHandler {
 
 		this.bot.once('ready', async () => {
 			await this.load();
-			console.log('Actions loaded');
+			logger.info('Actions loaded');
 		})
 	}
 

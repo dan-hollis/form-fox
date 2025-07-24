@@ -2,6 +2,7 @@ const {
 	textVars: VARIABLES
 } = require('../extras');
 const { Models: { SlashCommand } } = require('frame');
+const logger = require('../logger');
 
 class Command extends SlashCommand {
     #bot;
@@ -88,7 +89,7 @@ class Command extends SlashCommand {
             this.#bot.emit('ACCEPT', post.response);
             await post.delete()
         } catch(e) {
-            console.log(e);
+            logger.error(`Response acceptance error: ${e.message}`);
             return `ERR! ${e.message || e}\n(Response still accepted!)`;
         }
 

@@ -1,4 +1,5 @@
 const { Models: { DataStore, DataObject } } = require('frame');
+const logger = require('../logger');
 const TYPES = require('../questions');
 const {
 	events: EVENTS
@@ -309,7 +310,7 @@ class FormStore extends DataStore {
 			 data.ticket_msg, data.post_icon, data.post_banner,
 			 data.button_text, data.button_style, data.note]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`forms store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 
@@ -352,7 +353,7 @@ class FormStore extends DataStore {
 			 data.ticket_msg, data.post_icon, data.post_banner,
 			 data.button_text, data.button_style, data.note]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`forms store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 
@@ -363,7 +364,7 @@ class FormStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM forms WHERE server_id = $1 AND hid = $2`,[server, hid]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`forms store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -377,7 +378,7 @@ class FormStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM forms WHERE server_id = $1`,[server]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`forms store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -390,7 +391,7 @@ class FormStore extends DataStore {
 			try {
 				var data = await this.db.query(`SELECT * FROM forms WHERE server_id = $1 AND hid = ANY($2)`,[server, ids]);
 			} catch(e) {
-				console.log(e);
+				logger.error(`forms store error: ${e.message}`);
 				return rej(e.message);
 			}
 			
@@ -406,7 +407,7 @@ class FormStore extends DataStore {
 				var data = await this.db.query(`SELECT * FROM forms WHERE server_id = $1 AND apply_channel = $2`,
 					[server, channel]);
 			} catch(e) {
-				console.log(e);
+				logger.error(`forms store error: ${e.message}`);
 				return rej(e.message);
 			}
 
@@ -419,7 +420,7 @@ class FormStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM forms`);
 		} catch(e) {
-			console.log(e);
+			logger.error(`forms store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -431,7 +432,7 @@ class FormStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM forms WHERE id = $1`,[id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`forms store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -452,7 +453,7 @@ class FormStore extends DataStore {
 		try {
 			await this.db.query(`UPDATE forms SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`forms store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -575,7 +576,7 @@ class FormStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM forms WHERE id = $1`, [id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`forms store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -588,7 +589,7 @@ class FormStore extends DataStore {
 			if(!forms?.length) return;
 			for(var form of forms) await this.delete(server, form.hid);
 		} catch(e) {
-			console.log(e);
+			logger.error(`forms store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -599,7 +600,7 @@ class FormStore extends DataStore {
 		try {
 			var forms = await this.getAll(server);
 		} catch(e) {
-			console.log(e);
+			logger.error(`forms store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 

@@ -1,4 +1,5 @@
 const { Models: { DataStore, DataObject } } = require('frame');
+const logger = require('../logger');
 
 const KEYS = {
 	id: { },
@@ -25,7 +26,7 @@ class FormPostStore extends DataStore {
 			try {
 				this.handleReactions(...args);
 			} catch(e) {
-				console.log(e.message || e);
+				logger.error(`form posts store error: ${e.message || e}`);
 			}
 		})
 
@@ -33,7 +34,7 @@ class FormPostStore extends DataStore {
 			try {
 				await this.deleteByMessage(channel.guild.id, id);
 			} catch(e) {
-				console.log(e.message || e);
+				logger.error(`form posts store error: ${e.message || e}`);
 			}
 		})
 
@@ -41,7 +42,7 @@ class FormPostStore extends DataStore {
 			try {
 				this.handleInteractions(...args);
 			} catch(e) {
-				console.log(e.message || e);
+				logger.error(`form posts store error: ${e.message || e}`);
 			}
 		})
 	}
@@ -58,7 +59,7 @@ class FormPostStore extends DataStore {
 			RETURNING id`,
 			[data.server_id, data.channel_id, data.message_id, data.form, data.bound || false]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`form posts store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -76,7 +77,7 @@ class FormPostStore extends DataStore {
 			) VALUES ($1,$2,$3,$4,$5)`,
 			[server, channel, message, data.form, data.bound || false]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`form posts store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -92,7 +93,7 @@ class FormPostStore extends DataStore {
 				AND bound = FALSE
 			`, [server, message]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`form posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -125,7 +126,7 @@ class FormPostStore extends DataStore {
 				AND bound = TRUE
 			`, [server, message, hid]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`form posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -156,7 +157,7 @@ class FormPostStore extends DataStore {
 				AND message_id = $2
 			`,[server, message]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`form posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -182,7 +183,7 @@ class FormPostStore extends DataStore {
 				AND form = $2
 			`,[server, form]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`form posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -204,7 +205,7 @@ class FormPostStore extends DataStore {
 				id = $1
 			`, [id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`form posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -223,7 +224,7 @@ class FormPostStore extends DataStore {
 				WHERE id = $1
 			`, [id, ...Object.values(data)]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`form posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -237,7 +238,7 @@ class FormPostStore extends DataStore {
 				WHERE id = $1
 			`, [id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`form posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -252,7 +253,7 @@ class FormPostStore extends DataStore {
 				message_id = $2
 			`, [server, message]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`form posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -270,7 +271,7 @@ class FormPostStore extends DataStore {
 
 		var posts = await this.getByMessage(msg.channel.guild.id, msg.id);
 		if(!posts?.[0]) return;
-		console.log(reaction.emoji.toString());
+		logger.debug(`Reaction emoji: ${reaction.emoji.toString()}`);
 		var post = posts.find(p => (p.form.emoji ?? '📝') == (reaction.emoji.id ? `<${reaction.emoji.animated ? 'a' : ''}:${reaction.emoji.name}:${reaction.emoji.id}>` : reaction.emoji.name));
 		if(!post) return;
 

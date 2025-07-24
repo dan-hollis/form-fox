@@ -1,4 +1,5 @@
 const { Models: { SlashCommand } } = require('frame');
+const logger = require('../logger');
 const {
     denyBtns: DENY
 } = require('../extras');
@@ -164,7 +165,7 @@ class Command extends SlashCommand {
                 }]
             });
         } catch(e) {
-            console.log(e);
+            logger.error(`Response denial error: ${e.message}`);
             return await msg.channel.send('ERR! Response denied, but couldn\'t message the user!');
         }
 

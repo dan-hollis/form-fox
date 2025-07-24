@@ -1,4 +1,5 @@
 const { Models: { SlashCommand } } = require('frame');
+const logger = require('../../logger');
 
 class Command extends SlashCommand {
 	#bot;
@@ -20,7 +21,7 @@ class Command extends SlashCommand {
 		if(ctx.user.id !== this.#bot.owner) return "Only the bot owner can use this!";
 
 		var app = await ctx.client.application.fetch();
-		console.log(app);
+		logger.debug(`App data: ${JSON.stringify(app)}`);
 		var skus = await app.fetchSKUs();
 		if(!skus) return "No SKUs registered :(";
 
@@ -30,7 +31,7 @@ class Command extends SlashCommand {
 			)
 		})
 
-		console.log(formatted)
+		logger.debug(`Formatted SKUs: ${JSON.stringify(formatted)}`);
 
 		return formatted.join("\n")
 	}

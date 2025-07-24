@@ -1,3 +1,5 @@
+const logger = require('../../common/logger');
+
 class PremiumHandler {
 	bot;
 	
@@ -28,7 +30,7 @@ class PremiumHandler {
 		}
 
 		var total = [...prem, ...ents];
-		console.log(total)
+		logger.debug(`Premium total: ${total}`);
 		if(!total.find(x => !x.ends_at || (x.ends_at && x.ends_at.getTime() > Date.now())))
 			return { access: false, error: 'expired' }
 

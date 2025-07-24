@@ -1,3 +1,5 @@
+const logger = require('../../common/logger');
+
 module.exports = async (member, bot) => {
 	if(member.user.dmChannel) {
 		var existing = await bot.stores.openResponses.get(member.user.dmChannel.id);
@@ -19,6 +21,6 @@ module.exports = async (member, bot) => {
 			guild: member.guild
 		})
 	} catch(e) {
-		console.log(e)
+		logger.error(`Guild member add error: ${e.message}`);
 	}
 }

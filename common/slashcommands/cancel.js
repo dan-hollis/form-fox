@@ -1,4 +1,5 @@
 const { Models: { SlashCommand } } = require('frame');
+const logger = require('../logger');
 const { confBtns } = require('../extras');
 
 class Command extends SlashCommand {
@@ -80,12 +81,12 @@ class Command extends SlashCommand {
 
 			return `Successfully cancelled your response for **${form.name}**! You can now start a new form if needed.`;
 		} catch(e) {
-			console.log(e);
+			                        logger.error(`Response cancellation error: ${e.message}`);
 			// Try to delete the response even if message edit fails
 			try {
 				await response.delete();
 			} catch(e2) {
-				console.log('Failed to delete response:', e2);
+				                                logger.error(`Failed to delete response: ${e2.message}`);
 			}
 			return 'Response cancelled, but there was an issue updating the form message. You should now be able to start a new form.';
 		}

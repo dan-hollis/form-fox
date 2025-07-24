@@ -7,6 +7,7 @@ const {
 	textVars: VARIABLES
 } = require('../../common/extras');
 const TYPES = require('../../common/questions');
+const logger = require('../../common/logger');
 
 const {
 	ChannelType
@@ -24,15 +25,15 @@ const ACTIONS = {
 }
 
 class ResponseHandler {
-	menus = new Set();
 	constructor(bot) {
 		this.bot = bot;
+		this.menus = new Set();
 
 		bot.on('messageCreate', async (...args) => {
 			try {
 				this.handleMessage(...args);
 			} catch(e) {
-				console.log(e.message || e);
+				logger.error(`response handler error: ${e.message || e}`);
 			}
 		})
 
@@ -40,7 +41,7 @@ class ResponseHandler {
 			try {
 				this.handleInteractions(...args);
 			} catch(e) {
-				console.log(e.message || e);
+				logger.error(`response handler error: ${e.message || e}`);
 			}
 		})
 	}
@@ -48,26 +49,71 @@ class ResponseHandler {
 	async startResponse(ctx) {
 		var {user, form, cfg} = ctx;
 
-		if(!form.open)
+		log.info('Starting form response', { 
+			userId: user.id, 
+			formId: form.hid, 
+			guildId: form.server_id 
+		});
+
+		if(!form.open) {
+			log.warn('Form response denied - form closed', { 
+				userId: user.id, 
+				formId: form.hid 
+			});
 			return "That form isn't accepting responses!";
+		}
 
-		if(!form.channel_id && !cfg?.response_channel)
+		if(!form.channel_id && !cfg?.response_channel) {
+			log.warn('Form response denied - no response channel', { 
+				userId: user.id, 
+				formId: form.hid 
+			});
 			return 'No response channel set for that form! Ask the mods to set one!';
+		}
 
-		if(!form.questions?.[0]) return "That form has no questions! Ask the mods to add some first!";
+		if(!form.questions?.[0]) {
+			log.warn('Form response denied - no questions', { 
+				userId: user.id, 
+				formId: form.hid 
+			});
+			return "That form has no questions! Ask the mods to add some first!";
+		}
 		await form.getQuestions();
 
 		try {
 			var dm = await user.createDM();
 			var existing = await this.bot.stores.openResponses.get(dm.id);
-			if(existing?.id) return 'Please finish your current form before starting a new one!';
+			if(existing?.id) {
+				log.info('Form response denied - user has open response', { 
+					userId: user.id, 
+					existingFormId: existing.form 
+				});
+				return 'Please finish your current form before starting a new one!';
+			}
 
 			if(form.cooldown && form.cooldown > 0) {
 				var past = (await this.bot.stores.responses.getByUser(form.server_id, user.id))?.pop();
 				if(past && past.status == 'denied') {
 					var diff = this.bot.utils.dayDiff(new Date(), past.received.getTime() + (form.cooldown * 24 * 60 * 60 * 1000));
-					if(diff > 0) return `Cooldown not up yet! You must wait ${diff} day${diff == 1 ? '' : 's'} to apply again`;
+					if(diff > 0) {
+						log.info('Form response denied - cooldown active', { 
+							userId: user.id, 
+							formId: form.hid,
+							daysRemaining: diff
+						});
+						return `Cooldown not up yet! You must wait ${diff} day${diff == 1 ? '' : 's'} to apply again`;
+					}
 				}
+			}
+
+			// Check if user has a pending response for this specific form
+			var hasPending = await this.bot.stores.responses.hasPendingResponse(form.server_id, user.id, form.hid);
+			if(hasPending) {
+				log.info('Form response denied - pending response exists', { 
+					userId: user.id, 
+					formId: form.hid 
+				});
+				return 'You already have a pending application for this form! Please wait for it to be approved or denied before submitting another.';
 			}
 			
 			if(cfg?.embed || form.embed) {
@@ -169,7 +215,7 @@ class ResponseHandler {
 				questions: JSON.stringify(form.questions)
 			})
 		} catch(e) {
-			console.log(e);
+			logger.error(`response handler error: ${e.message}`);
 			if (e.message === 'Cannot send messages to this user') {
 				return 'Please turn on `Direct Messages from Server Members` in your Privacy Settings!';
 			}
@@ -364,7 +410,7 @@ class ResponseHandler {
 			await this.bot.stores.forms.updateCount(rmsg.channel.guild.id, response.form.hid);
 			this.bot.emit('SUBMIT', created);
 		} catch(e) {
-			console.log(e);
+			logger.error(`response handler error: ${e.message}`);
 			return Promise.reject('ERR! '+(e.message || e));
 		}
 
@@ -430,7 +476,7 @@ class ResponseHandler {
 				}]
 			});
 		} catch(e) {
-			console.log(e);
+			logger.error(`response handler error: ${e.message}`);
 			return Promise.reject('ERR! '+(e.message || e));
 		}
 
@@ -460,7 +506,7 @@ class ResponseHandler {
 				}]
 			});
 		} catch(e) {
-			console.log(e);
+			logger.error(`response handler error: ${e.message}`);
 			return Promise.reject('ERR! '+(e.message || e));
 		}
 
@@ -567,7 +613,7 @@ class ResponseHandler {
 				try {
 					res = await this.sendResponse(response, message, user, config);
 				} catch(e) {
-					console.log(e);
+					logger.error(`response handler error: ${e.message}`);
 					await message.channel.send(e.message || e);
 				}
 				this.menus.delete(message.channel.id);
@@ -577,7 +623,7 @@ class ResponseHandler {
 				try {
 					res = await this.cancelResponse(response, message, user, config);
 				} catch(e) {
-					console.log(e);
+					logger.error(`response handler error: ${e.message}`);
 					await message.channel.send(e.message || e);
 				}
 				this.menus.delete(message.channel.id);
@@ -587,7 +633,7 @@ class ResponseHandler {
 				try {
 					res = await this.skipQuestion(response, message, user, config);
 				} catch(e) {
-					console.log(e);
+					logger.error(`response handler error: ${e.message}`);
 					await message.channel.send(e.message || e);
 				}
 				this.menus.delete(message.channel.id);

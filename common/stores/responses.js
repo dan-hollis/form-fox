@@ -1,4 +1,5 @@
 const { Models: { DataStore, DataObject } } = require('frame');
+const logger = require('../logger');
 const KEYS = {
 	id: { },
 	server_id: { },
@@ -69,7 +70,7 @@ class ResponseStore extends DataStore {
 			[data.server_id, data.user_id, data.form, data.questions || [],
 			data.answers || [], data.status || 'pending', data.received || new Date()]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -91,7 +92,7 @@ class ResponseStore extends DataStore {
 			[server, data.hid, data.user_id, data.form, data.questions || [],
 			data.answers || [], data.status || 'pending', data.received || new Date()]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -102,7 +103,7 @@ class ResponseStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM responses WHERE server_id = $1 AND hid = $2`,[server, hid]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -119,7 +120,7 @@ class ResponseStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM responses WHERE id = $1`,[id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -136,7 +137,7 @@ class ResponseStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM responses WHERE server_id = $1`,[server]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -163,7 +164,7 @@ class ResponseStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM responses WHERE server_id = $1 AND user_id = $2`,[server, user]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -186,11 +187,26 @@ class ResponseStore extends DataStore {
 		} else return undefined;
 	}
 
+	async hasPendingResponse(server, user, form) {
+		try {
+			var data = await this.db.query(`
+				SELECT id FROM responses 
+				WHERE server_id = $1 AND user_id = $2 AND form = $3 AND status = 'pending'
+				LIMIT 1
+			`, [server, user, form]);
+		} catch(e) {
+			logger.error(`responses store error: ${e.message}`);
+			return Promise.reject(e.message);
+		}
+		
+		return data.rows.length > 0;
+	}
+
 	async getByForm(server, hid) {
 		try {
 			var data = await this.db.query(`SELECT * FROM responses WHERE server_id = $1 AND form = $2`,[server, hid]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -212,7 +228,7 @@ class ResponseStore extends DataStore {
 				WHERE server_id = $1
 			`, [server]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -249,7 +265,7 @@ class ResponseStore extends DataStore {
 		try {
 			await this.db.query(`UPDATE responses SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -260,7 +276,7 @@ class ResponseStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM responses WHERE id = $1`, [id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -271,7 +287,7 @@ class ResponseStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM responses WHERE server_id = $1`, [server]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -282,7 +298,7 @@ class ResponseStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM responses WHERE server_id = $1 AND form = $2`, [server, form]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`responses store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		

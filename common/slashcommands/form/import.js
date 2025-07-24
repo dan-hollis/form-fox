@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const { confBtns } = require(__dirname + '/../../extras');
 const { Models: { SlashCommand } } = require('frame');
+const logger = require('../../logger');
 
 class Command extends SlashCommand {
 	#bot;
@@ -41,7 +42,7 @@ class Command extends SlashCommand {
 		try {
 			data = (await (await fetch(url)).json());
 		} catch(e) {
-			console.log(e);
+			                logger.error(`Form import error: ${e.message}`);
 			return "Please link a valid .json file!";
 		}
 

@@ -1,4 +1,5 @@
 const { Models: { DataStore, DataObject } } = require('frame');
+const logger = require('../logger');
 const TYPES = require('../questions');
 const {
 	qButtons: QBTNS,
@@ -90,7 +91,7 @@ class QuestionStore extends DataStore {
 			 data.type, data.name, data.required,
 			 data.options]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -112,7 +113,7 @@ class QuestionStore extends DataStore {
 			 data.type, data.name, data.required,
 			 data.options]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -126,7 +127,7 @@ class QuestionStore extends DataStore {
 				WHERE server_id = $1 AND form = $2 AND hid = $3
 			`,[server, form, hid]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -142,7 +143,7 @@ class QuestionStore extends DataStore {
 				WHERE server_id = $1 AND form = $2
 			`,[server, form]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -155,7 +156,7 @@ class QuestionStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM questions WHERE id = $1`,[id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -168,7 +169,7 @@ class QuestionStore extends DataStore {
 		try {
 			await this.db.query(`UPDATE questions SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -179,7 +180,7 @@ class QuestionStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM questions WHERE id = $1`, [id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`Store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		

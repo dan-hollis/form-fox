@@ -1,4 +1,5 @@
 const { Models: { DataStore, DataObject } } = require('frame');
+const logger = require('../logger');
 const KEYS = {
 	id: { },
 	server_id: { },
@@ -42,7 +43,7 @@ class TicketStore extends DataStore {
 			RETURNING id`,
 			[data.server_id, data.channel_id, data.response_id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`tickets store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -58,7 +59,7 @@ class TicketStore extends DataStore {
 			) VALUES ($1,$2,$3)`,
 			[server, channel, response]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`tickets store error: ${e.message}`);
 	 		return Promise.reject(e.message);
 		}
 		
@@ -69,7 +70,7 @@ class TicketStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM tickets WHERE server_id = $1 AND response_id = $2`,[server, response]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`tickets store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -81,7 +82,7 @@ class TicketStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM tickets WHERE id = $1`, [id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`tickets store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -92,7 +93,7 @@ class TicketStore extends DataStore {
 		try {
 			await this.db.query(`DELETE FROM tickets WHERE server_id = $1 AND channel_id = $2`, [server, channel]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`tickets store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		

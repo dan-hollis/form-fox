@@ -1,3 +1,5 @@
+const logger = require('../../common/logger');
+
 module.exports = async (member, bot) => {
 	if(!member.user.dmChannel) return;
 
@@ -12,6 +14,6 @@ module.exports = async (member, bot) => {
 			user: member.user
 		})
 	} catch(e) {
-		console.log(e);
+		logger.error(`Guild member remove error: ${e.message}`);
 	}
 }

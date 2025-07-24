@@ -1,6 +1,7 @@
 const { Models: { DataStore, DataObject } } = require('frame');
 const axios = require('axios');
 const EVENTS = require(__dirname + '/../extras.js').events;
+const logger = require('../logger');
 const KEYS = {
 	id: { },
 	server_id: { },
@@ -48,8 +49,10 @@ class HookStore extends DataStore {
 					try {
 						await axios.post(hook.url, data)
 					} catch(e) {
-						console.log(e)
-						console.log(e.response)
+						logger.error(`Webhook error: ${e.message}`);
+						if (e.response) {
+							logger.error(`Webhook response: ${JSON.stringify(e.response.data)}`);
+						}
 					}
 				}
 			})

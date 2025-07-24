@@ -1,6 +1,7 @@
 const {
 	numbers
 } = require('../extras');
+const logger = require('../logger');
 
 module.exports = {
 	description: 'allows the user to choose one option from multiple choices',
@@ -53,7 +54,7 @@ module.exports = {
 				type: 10,
 				content: `**Selected:**\n` + choice
 			})
-			console.log(embed);
+			logger.debug(`Multiple choice embed: ${JSON.stringify(embed)}`);
 			return {
 				response,
 				send: true,

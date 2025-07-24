@@ -1,5 +1,7 @@
 const { ChannelType } = require('discord.js');
 
+const logger = require('../../logger');
+
 module.exports = {
 	name: 'remove',
 	description: 'Remove tags from a response in a forum channel',
@@ -26,7 +28,7 @@ module.exports = {
 			max_values: tags.length,
 			placeholder: "Select tags..."
 		})
-		console.log(select);
+		logger.debug(`Selection: ${JSON.stringify(select)}`);
 		if(!Array.isArray(select)) return { success: false, message: select };
 
 

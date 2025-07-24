@@ -46,12 +46,41 @@ This also applies to bot restarts. Your data will be saved as soon as you answer
 
 ## Self hosting
 ### Requirements
-**Node:** version 14.0 or higher  
+**Node:** version 21.0 or higher  
 **Database:** For the master branch: PostgreSQL with any version, local or otherwise; for sqlite branch: SQLite 3  
 **Tech:** You'll want some form of hosting computer, be it a VPS in the cloud or a computer that's always online. **This bot isn't likely to work with REPL.**  
 You should also have a basic understanding of Node, Postgres, and JavaScript, especially if you plan to make changes.
 
-### Steps
+### Setup Checklist
+Follow these steps to set up your own Form Fox instance:
+
+1. **Create Discord Application**
+   - Go to https://discord.com/developers/applications
+   - Create a new application for your bot
+
+2. **Configure Bot User**
+   - Create a bot user in your application
+   - Copy the bot token for your environment variables
+
+3. **Get Discord IDs**
+   - Get your Discord user ID and set it as the OWNER
+   - Get your Discord server ID(s) for COMMAND_GUILD/DEV_GUILD
+
+4. **Set Up Database**
+   - Install and configure PostgreSQL database
+   - Update database connection variables (PGHOST, PGUSER, PGPASSWORD, etc.)
+
+5. **Generate Bot Invite**
+   - Create and configure the bot invite URL
+   - Set the INVITE variable in your environment
+
+6. **Install and Run**
+   - Run `npm install` to install dependencies
+   - Configure your `.env` file with all the variables
+   - Run `npm start` to start the bot
+   - Use your invite URL to add the bot to your server
+
+### Quick Start Steps
 (Assuming you have all the requirements set up)
 1. Download this repository and unzip (if applicable) to wherever you want it
 2. Open a terminal in the root folder and use `npm i` to install dependencies

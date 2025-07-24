@@ -1,4 +1,5 @@
 const { Models: { DataStore, DataObject } } = require('frame');
+const logger = require('../logger');
 const {
 	pageBtns: PGBTNS,
 	denyBtns: DENY,
@@ -55,7 +56,7 @@ class ResponsePostStore extends DataStore {
 			try {
 				this.handleInteractions(...args);
 			} catch(e) {
-				console.log(e.message || e);
+				logger.error(`response posts store error: ${e.message || e}`);
 			}
 		})
 
@@ -78,7 +79,7 @@ class ResponsePostStore extends DataStore {
 			[data.server_id, data.channel_id, data.message_id, 
 			 data.response, data.page ?? 1]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`response posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -96,7 +97,7 @@ class ResponsePostStore extends DataStore {
 			) VALUES ($1,$2,$3,$4,$5)`,
 			[server, channel, message, data.response, data.page ?? 1]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`response posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -112,7 +113,7 @@ class ResponsePostStore extends DataStore {
 				AND message_id = $3
 			`, [server, channel, message]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`response posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -129,7 +130,7 @@ class ResponsePostStore extends DataStore {
 		try {
 			var data = await this.db.query(`SELECT * FROM response_posts WHERE server_id = $1 AND response = $2`,[server, hid]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`response posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -150,7 +151,7 @@ class ResponsePostStore extends DataStore {
 				WHERE id = $1
 			`, [id, ...Object.values(data)]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`response posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 
@@ -164,7 +165,7 @@ class ResponsePostStore extends DataStore {
 				WHERE id = $1
 			`, [id]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`response posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -180,7 +181,7 @@ class ResponsePostStore extends DataStore {
 				AND message_id = $3
 			`, [server, channel, message]);
 		} catch(e) {
-			console.log(e);
+			logger.error(`response posts store error: ${e.message}`);
 			return Promise.reject(e.message);
 		}
 		
@@ -325,7 +326,7 @@ class ResponsePostStore extends DataStore {
 		                }]
 		            })
 				} catch(e) {
-					console.log(e);
+					logger.error(`response posts store error: ${e.message}`);
 					return await msg.channel.send('ERR! Response denied, but couldn\'t message the user!');
 				}
 
@@ -399,7 +400,7 @@ class ResponsePostStore extends DataStore {
 		                }]
 		            });
 				} catch(e) {
-					console.log(e);
+					logger.error(`response posts store error: ${e.message}`);
 					return await msg.channel.send(`ERR! ${e.message || e}\n(Response still accepted!)`);
 				}
 				break;

@@ -1,6 +1,7 @@
 const {
 	numbers
 } = require('../extras');
+const logger = require('../logger');
 
 module.exports = {
 	description: 'allows the user to choose several options from multiple choices',
@@ -56,7 +57,7 @@ module.exports = {
 		var d = {}
 		var embed = prompt.components[0].toJSON();
 		if(['finish-select', 'finish'].includes(data)) {
-			console.log(response.selection)
+			logger.debug(`Checkbox selection: ${response.selection}`);
 			if(!response.selection?.length && question.required) {
 				await msg.channel.send('Select something first!');
 				return { response, send: false }
@@ -87,7 +88,7 @@ module.exports = {
 
 			if(!response.selection) response.selection = [];
             response.selection = choices;
-            console.log('choices: ', choices, 'selection: ', response.selection)
+            logger.debug(`Checkbox choices: ${choices}, selection: ${response.selection}`);
             await response.save();
 
             return {response, menu: data.menu, send: false}

@@ -1,5 +1,6 @@
 const { ChannelType } = require('discord.js');
 const TYPES = require('../../../questions');
+const logger = require('../../../logger');
 const {
 	numbers: NUMS
 } = require('../../../extras');
@@ -74,7 +75,7 @@ module.exports = {
 			name: question.name,
 			...condition
 		}
-		console.log(data);
+		logger.debug(`Action data: ${JSON.stringify(data)}`);
 
 		return { success: true, data}
 	},

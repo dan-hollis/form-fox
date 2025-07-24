@@ -13,6 +13,7 @@ const {
 } = require('frame');
 const fs = require("fs");
 const path = require("path");
+const logger = require('../common/logger');
 
 const bot = new FrameClient({
 	intents: [
@@ -66,21 +67,20 @@ async function setup() {
 }
 
 bot.on("ready", async ()=> {
-	console.log(`Logged in as ${bot.user.tag} (${bot.user.id})`);
+	logger.info(`Logged in as ${bot.user.tag} (${bot.user.id})`);
 })
 
 bot.on('error', (err)=> {
-	console.log(`Error:\n${err.stack}`);
+	logger.error(`Discord.js error: ${err.stack}`);
 })
-
-process.on("unhandledRejection", (e) => console.log(e));
 
 setup()
 .then(async () => {
 	try {
 		await bot.login(process.env.TOKEN);
+		logger.info('Bot setup completed successfully');
 	} catch(e) {
-		console.log("Trouble connecting...\n"+e)
+		logger.error(`Trouble connecting: ${e}`);
 	}
 })
-.catch(e => console.log(e))
+.catch(e => logger.error(`Setup error: ${e}`));

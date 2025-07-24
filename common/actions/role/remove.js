@@ -1,4 +1,5 @@
 const { ChannelType } = require('discord.js');
+const logger = require('../../logger');
 
 module.exports = {
 	name: 'remove',
@@ -18,7 +19,7 @@ module.exports = {
 		if(!Array.isArray(select)) return { success: false, message: select };
 
 		data.roles = select;
-		console.log(data.roles);
+		logger.debug(`Role data: ${JSON.stringify(data.roles)}`);
 
 		return { success: true, data}
 	},
