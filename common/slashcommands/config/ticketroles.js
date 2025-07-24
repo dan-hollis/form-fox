@@ -1,4 +1,5 @@
 const { Models: { SlashCommand } } = require('frame');
+const logger = require('../../logger');
 
 class Command extends SlashCommand {
 	#bot;
@@ -8,6 +9,7 @@ class Command extends SlashCommand {
 		super({
 			name: 'ticketroles',
 			description: 'Set which roles can access ticket channels',
+			ephemeral: true,
 			options: [
 				{
 					name: 'roles',

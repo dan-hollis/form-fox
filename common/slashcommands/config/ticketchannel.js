@@ -8,6 +8,7 @@ class Command extends SlashCommand {
 		super({
 			name: 'ticketcategory',
 			description: 'Set a ticket category',
+			ephemeral: true,
 			options: [
 				{
 					name: 'category',

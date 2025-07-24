@@ -15,6 +15,7 @@ class Command extends SlashCommand {
 			name: "add",
 			description: "Add permissions to an existing op",
 			type: 1,
+			ephemeral: true,
 			options: [
 				{
 					name: 'target',

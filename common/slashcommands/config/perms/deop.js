@@ -15,6 +15,7 @@ class Command extends SlashCommand {
 			name: "deop",
 			description: "Remove an existing op's access to admin commands",
 			type: 1,
+			ephemeral: true,
 			options: [
 				{
 					name: 'target',

@@ -9,6 +9,7 @@ class Command extends SlashCommand {
 		super({
 			name: 'autodm',
 			description: "Sets a form to automatically DM to a user when they join",
+			ephemeral: true,
 			options: [
 				{
 					name: 'form_id',

@@ -8,6 +8,7 @@ class Command extends SlashCommand {
 		super({
 			name: "reacts",
 			description: "Change if the user's reaction is removed when applying to a form",
+			ephemeral: true,
 			options: [
 				{
 					name: 'value',

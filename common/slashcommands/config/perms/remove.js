@@ -15,6 +15,7 @@ class Command extends SlashCommand {
 			name: "remove",
 			description: "Remove permissions from an existing op",
 			type: 1,
+			ephemeral: true,
 			options: [
 				{
 					name: 'target',

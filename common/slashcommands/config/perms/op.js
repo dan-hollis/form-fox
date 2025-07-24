@@ -15,6 +15,7 @@ class Command extends SlashCommand {
 			name: "op",
 			description: "Give a role or user access to admin commands",
 			type: 1,
+			ephemeral: true,
 			options: [
 				{
 					name: 'target',

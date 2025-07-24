@@ -8,6 +8,7 @@ class Command extends SlashCommand {
 		super({
 			name: "embed",
 			description: "Change if the info embed is sent when applying to a form",
+			ephemeral: true,
 			options: [
 				{
 					name: 'value',

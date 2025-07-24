@@ -8,6 +8,7 @@ class Command extends SlashCommand {
 		super({
 			name: 'channel',
 			description: 'Set a response channel',
+			ephemeral: true,
 			options: [
 				{
 					name: 'channel',

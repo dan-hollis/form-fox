@@ -8,6 +8,7 @@ class Command extends SlashCommand {
 		super({
 			name: 'ticketmsg',
 			description: 'Set a message to send in created ticket channels',
+			ephemeral: true,
 			options: [
 				{
 					name: 'message',

@@ -12,6 +12,7 @@ const KEYS = {
 	opped: { patch: true },
 	ticket_category: { patch: true },
 	ticket_message: { patch: true },
+	ticket_roles: { patch: true },
 	autodm: { patch: true },
 	autothread: { patch: true }
 }
@@ -128,7 +129,17 @@ class ConfigStore extends DataStore {
 
 	async update(id, data = {}) {
 		try {
-			await this.db.query(`UPDATE configs SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
+			// Handle JSONB fields by stringifying them
+			var processedData = {};
+			for(let [key, value] of Object.entries(data)) {
+				if(key === 'ticket_roles' || key === 'opped') {
+					processedData[key] = JSON.stringify(value);
+				} else {
+					processedData[key] = value;
+				}
+			}
+			
+			await this.db.query(`UPDATE configs SET ${Object.keys(processedData).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(processedData)]);
 		} catch(e) {
 			logger.error(`config store error: ${e.message}`);
 			return Promise.reject(e.message);

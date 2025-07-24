@@ -9,6 +9,7 @@ class Command extends SlashCommand {
 		super({
 			name: 'autothread',
 			description: "Sets whether to create a thread on each received response",
+			ephemeral: true,
 			options: [
 				{
 					name: 'value',
