@@ -154,7 +154,7 @@ class Command extends SlashCommand {
                             type: 10,
                             content:
                                 `**Server:** ${msg.channel.guild.name} (${msg.channel.guild.id})\n` +
-                                `**Form:** ${post.response.form.name} (${post.response.form.hid})\n` +
+                                `**Form:** ${post.response.form?.name || 'Unknown'} (${post.response.form?.hid || 'Unknown'})\n` +
                                 `**Response ID:** ${post.response.hid}` 
                         },
                         {

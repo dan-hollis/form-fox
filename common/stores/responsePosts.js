@@ -315,7 +315,7 @@ class ResponsePostStore extends DataStore {
 		                            type: 10,
 		                            content:
 		                                `**Server:** ${ctx.guild.name} (${ctx.guild.id})\n` +
-		                                `**Form:** ${post.response.form.name} (${post.response.form.hid})\n` +
+		                                `**Form:** ${post.response.form?.name || 'Unknown'} (${post.response.form?.hid || 'Unknown'})\n` +
 		                                `**Response ID:** ${post.response.hid}` 
 		                        },
 		                        {
@@ -389,7 +389,7 @@ class ResponsePostStore extends DataStore {
 		                            type: 10,
 		                            content:
 		                                `**Server:** ${msg.channel.guild.name} (${msg.channel.guild.id})\n` +
-		                                `**Form:** ${post.response.form.name} (${post.response.form.hid})\n` +
+		                                `**Form:** ${post.response.form?.name || 'Unknown'} (${post.response.form?.hid || 'Unknown'})\n` +
 		                                `**Response ID:** ${post.response.hid}` 
 		                        },
 		                        {
@@ -447,9 +447,16 @@ class ResponsePostStore extends DataStore {
 
 					// Add permissions for roles that should access tickets
 					// First check form-specific ticket roles, then fall back to config
-					var ticketRoles = post.response.form.ticket_roles || cfg?.ticket_roles || [];
+					var formTicketRoles = post.response.form?.ticket_roles;
+					var configTicketRoles = cfg?.ticket_roles || [];
+					var ticketRoles = (formTicketRoles && formTicketRoles.length > 0) ? formTicketRoles : configTicketRoles;
+					logger.debug(`Ticket roles from form: ${JSON.stringify(formTicketRoles)}`);
+					logger.debug(`Ticket roles from config: ${JSON.stringify(configTicketRoles)}`);
+					logger.debug(`Final ticket roles array: ${JSON.stringify(ticketRoles)}`);
+					
 					for(var roleId of ticketRoles) {
 						var role = msg.guild.roles.cache.get(roleId);
+						logger.debug(`Processing role ID: ${roleId}, found role: ${role ? role.name : 'not found'}`);
 						if(role) {
 							await ch2.permissionOverwrites.create(role, {
 								'ViewChannel': true,
@@ -457,13 +464,16 @@ class ResponsePostStore extends DataStore {
 								'ReadMessageHistory': true,
 								'ManageMessages': true
 							});
+							logger.debug(`Added permissions for role: ${role.name} (${role.id})`);
+						} else {
+							logger.warn(`Role ID ${roleId} not found in guild cache`);
 						}
 					}
 
-					var tmsg = post.response.form.ticket_msg ?? cfg?.ticket_message;
-					if(tmsg) {
+					var tmsg = post.response.form?.ticket_msg ?? cfg?.ticket_message;
+					if(tmsg && post.response.form) {
 						for(var key of Object.keys(VARIABLES)) {
-							tmsg = tmsg.replace(key, VARIABLES[key](u2, msg.guild, post.response.form));
+							tmsg = tmsg.replace(key, VARIABLES[key](u2, msg.guild, post.response.form, post.response));
 						}
 
 						await ch2.send(tmsg);
@@ -500,7 +510,7 @@ class ResponsePostStore extends DataStore {
 						content:
 							`# Response\n` +
 							`Form name: ${response.form.name}\n` +
-							`Form ID: ${response.form.hid}\n` +
+							`Form ID: ${response.form?.hid || 'Unknown'}\n` +
 							`User: ${user.username}#${user.discriminator} (${user})\n` +
 							`Response ID: ${created.hid}`		
 					}
