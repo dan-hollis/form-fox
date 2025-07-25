@@ -30,10 +30,8 @@
     "winston-daily-rotate-file": "^4.7.1"
   },
   "overrides": {
-    "frame": {
-      "@discordjs/collection": "^2.1.1",
-      "@discordjs/rest": "^2.4.0",
-      "discord-api-types": "^0.37.118"
-    }
+    "@discordjs/collection": "^2.1.1",
+    "@discordjs/rest": "^2.4.0",
+    "discord-api-types": "^0.37.118"
   }
 }
