@@ -27,5 +27,9 @@
     "tinycolor2": "^1.6.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^4.7.1"
+  },
+  "overrides": {
+    "@discordjs/collection": "^2.1.1",
+    "@discordjs/rest": "^2.5.1"
   }
 }
