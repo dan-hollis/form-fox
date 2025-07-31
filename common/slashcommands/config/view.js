@@ -64,6 +64,7 @@ class Command extends SlashCommand {
 				`**Remove User Reactions:** ${cfg.reacts !== false ? 'Enabled' : 'Disabled'}\n` +
 				`**Send Info Embed:** ${cfg.embed !== false ? 'Enabled' : 'Disabled'}\n` +
 				`**Auto-threading:** ${cfg.autothread === true ? 'Enabled' : 'Disabled'}\n` +
+				`**Ephemeral Messages:** ${cfg.msg_ephemeral === true ? 'Enabled' : 'Disabled'}\n` +
 				`**Auto-DM Form:** ${autodmForm && autodmForm.id ? `${autodmForm.name} (${autodmForm.hid})` : cfg.autodm ? `${cfg.autodm} (form may not exist)` : 'Not set'}`
 		});
 

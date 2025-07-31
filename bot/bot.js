@@ -54,11 +54,15 @@ async function setup() {
 	files.forEach(f => bot.on(f.slice(0,-3), (...args) => require(__dirname + "/events/"+f)(...args,bot)));
 
 	bot.handlers = {};
-	bot.handlers.interaction = Handlers.InteractionHandler(bot, __dirname + '/../common/slashcommands');
 	files = fs.readdirSync(__dirname + "/handlers");
 	for(var f of files) {
 		var n = f.slice(0, -3);
-		bot.handlers[n] = require(__dirname + "/handlers/"+f)(bot)
+		if(n === 'interaction') {
+			// Use custom interaction handler that supports ephemeral config
+			bot.handlers[n] = require(__dirname + "/handlers/"+f)(bot, __dirname + '/../common/slashcommands')
+		} else {
+			bot.handlers[n] = require(__dirname + "/handlers/"+f)(bot)
+		}
 	}
 
 	bot.utils = Utilities;

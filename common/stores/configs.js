@@ -14,12 +14,30 @@ const KEYS = {
 	ticket_message: { patch: true },
 	ticket_roles: { patch: true },
 	autodm: { patch: true },
-	autothread: { patch: true }
+	autothread: { patch: true },
+	msg_ephemeral: { patch: true }
 }
 
 class Config extends DataObject {	
 	constructor(store, keys, data) {
 		super(store, keys, data);
+		
+		// Parse JSONB fields that come as strings from the database
+		if(this.ticket_roles && typeof this.ticket_roles === 'string') {
+			try {
+				this.ticket_roles = JSON.parse(this.ticket_roles);
+			} catch(e) {
+				this.ticket_roles = [];
+			}
+		}
+		
+		if(this.opped && typeof this.opped === 'string') {
+			try {
+				this.opped = JSON.parse(this.opped);
+			} catch(e) {
+				this.opped = { users: [], roles: [] };
+			}
+		}
 	}
 }
 
@@ -42,8 +60,16 @@ class ConfigStore extends DataStore {
 			ticket_message		TEXT,
 			ticket_roles		JSONB,
 			autodm 				TEXT,
-			autothread			BOOLEAN
+			autothread			BOOLEAN,
+			msg_ephemeral		BOOLEAN
 		)`)
+		
+		// Add msg_ephemeral column if it doesn't exist (for existing databases)
+		try {
+			await this.db.query('ALTER TABLE configs ADD COLUMN IF NOT EXISTS msg_ephemeral BOOLEAN')
+		} catch(e) {
+			// Column likely already exists, ignore error
+		}
 	}
 
 	async create(data = {}) {

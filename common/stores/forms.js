@@ -38,6 +38,31 @@ class Form extends DataObject {
 	constructor(store, keys, data) {
 		super(store, keys, data);
 
+		// Parse JSONB fields that come as strings from the database
+		if(this.questions && typeof this.questions === 'string') {
+			try {
+				this.questions = JSON.parse(this.questions);
+			} catch(e) {
+				this.questions = [];
+			}
+		}
+		
+		if(this.roles && typeof this.roles === 'string') {
+			try {
+				this.roles = JSON.parse(this.roles);
+			} catch(e) {
+				this.roles = [];
+			}
+		}
+		
+		if(this.ticket_roles && typeof this.ticket_roles === 'string') {
+			try {
+				this.ticket_roles = JSON.parse(this.ticket_roles);
+			} catch(e) {
+				this.ticket_roles = [];
+			}
+		}
+
 		this.old = this.toJSON();
 	}
 
@@ -450,6 +475,7 @@ class FormStore extends DataStore {
 	async update(id, data = {}, old, update = true) {
 		if(data.questions && typeof data.questions != 'string') data.questions = JSON.stringify(data.questions);
 		if(data.roles && typeof data.roles != 'string') data.roles = JSON.stringify(data.roles);
+		if(data.ticket_roles && typeof data.ticket_roles != 'string') data.ticket_roles = JSON.stringify(data.ticket_roles);
 		try {
 			await this.db.query(`UPDATE forms SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
 		} catch(e) {
