@@ -6,7 +6,6 @@ const KEYS = {
 	server_id: { },
 	response_channel: { patch: true },
 	message: { patch: true },
-	prefix: { patch: true },
 	reacts: { patch: true },
 	embed: { patch: true },
 	opped: { patch: true },
@@ -52,7 +51,6 @@ class ConfigStore extends DataStore {
 			server_id 			TEXT,
 			response_channel 	TEXT,
 			message 			TEXT,
-			prefix 				TEXT,
 			reacts 				BOOLEAN,
 			embed 				BOOLEAN,
 			opped 				JSONB,
@@ -78,20 +76,20 @@ class ConfigStore extends DataStore {
 				server_id,
 				response_channel,
 				message,
-				prefix,
 				reacts,
 				embed,
 				opped,
 				ticket_category,
 				ticket_message,
 				autodm,
-				autothread
+				autothread,
+				msg_ephemeral
 			) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
 			RETURNING id`,
 			[data.server_id, data.response_channel,
-			 data.message, data.prefix, data.reacts ?? true,
+			 data.message, data.reacts ?? true,
 			 data.embed ?? true, data.opped ?? {roles: [], users: []}, data.ticket_category,
-			 data.ticket_message, data.autodm, data.autothread]);
+			 data.ticket_message, data.autodm, data.autothread, data.msg_ephemeral]);
 		} catch(e) {
 			logger.error(`config store error: ${e.message}`);
 	 		return Promise.reject(e.message);
@@ -106,19 +104,19 @@ class ConfigStore extends DataStore {
 				server_id,
 				response_channel,
 				message,
-				prefix,
 				reacts,
 				embed,
 				opped,
 				ticket_category,
 				ticket_message,
 				autodm,
-				autothread
+				autothread,
+				msg_ephemeral
 			) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
 			[server, data.response_channel,
-			 data.message, data.prefix, data.reacts ?? true,
+			 data.message, data.reacts ?? true,
 			 data.embed ?? true, data.opped ?? {roles: [], users: []}, data.ticket_category,
-			 data.ticket_message, data.autodm, data.autothread]);
+			 data.ticket_message, data.autodm, data.autothread, data.msg_ephemeral]);
 		} catch(e) {
 			logger.error(`config store error: ${e.message}`);
 	 		return Promise.reject(e.message);

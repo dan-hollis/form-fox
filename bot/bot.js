@@ -36,12 +36,11 @@ const bot = new FrameClient({
 		ThreadManager: 0
 	})
 }, {
-	prefix: process.env.PREFIX,
 	invite: process.env.INVITE,
 	owner: process.env.OWNER,
 	statuses: [
-		(bot) => `${bot.prefix}h | in ${bot.guilds.cache.size} guilds!`,
-		(bot) => `${bot.prefix}h | serving ${bot.users.cache.size} users!`
+		(bot) => ({ name: `Slashcommands | in ${bot.guilds.cache.size} guilds!`, type: 2 }),
+		//(bot) => ({ name: `Slashcommands | serving ${bot.users.cache.size} users!`, type: 2 })
 	]
 });
 

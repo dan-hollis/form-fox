@@ -51,7 +51,6 @@ class Command extends SlashCommand {
 			type: 10,
 			content: 
 				'## Basic Settings\n' +
-				`**Prefix:** ${cfg.prefix || 'Not set'}\n` +
 				`**Response Channel:** ${responseChannelText}\n` +
 				`**Default Accept Message:** ${cfg.message || 'Not set'}`
 		});

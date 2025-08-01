@@ -589,9 +589,8 @@ class ResponseHandler {
 		
 		if(!message) message = interaction.message;
 		else {
-			if(this.bot.user.id == message?.author.id) return;
-			if(message?.author.bot) return;
-			if(message.content.toLowerCase().startsWith(this.bot.prefix)) return; //in case they're doing commands
+					if(this.bot.user.id == message?.author.id) return;
+		if(message?.author.bot) return;
 		}
 
 		if(this.menus.has(message.channel.id)) return;
@@ -713,7 +712,6 @@ class ResponseHandler {
 	async handleMessage(message) {
 		if(this.bot.user.id == message.author.id) return;
 		if(message.author.bot) return;
-		if(message.content.toLowerCase().startsWith(this.bot.prefix)) return; //in case they're doing commands
 
 		var response = await this.bot.stores.openResponses.get(message.channel.id);
 		if(!response?.id) return;

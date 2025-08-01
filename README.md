@@ -1,16 +1,16 @@
 # Form Fox
 *A form and application bot for Discord*
 
-Form Fox, or just Fox, is our take on a Disord application bot. They handle everything from the creation of forms to adding roles when responses get accepted.
+Form Fox, or just Fox, is our take on a Discord application bot. They handle everything from the creation of forms to adding roles when responses get accepted.
 
-The bot's default prefix is `ff!`, and you can get help with anything you need with `ff!h`.
+The bot uses slash commands for all functionality.
 
 ## Getting Started
 You can invite Form Fox with [this link](https://discord.com/oauth2/authorize?client_id=737192331241062462&permissions=268561472&scope=bot). Once you've got the bot in your server, you should:
-- Create a form with `ff!create`
-- Post that form to a channel with `ff!post`, or bind it to an existing message with `ff!bind`
-- Set a response channel globally or local to that form with `ff!channel`
-- React to the post from before, or use `ff!apply` to open a response
+- Create a form with `/form create`
+- Post that form to a channel with `/form post`, or bind it to an existing message with `/form bind`
+- Set a response channel globally or local to that form with `/config channel`
+- React to the post from before, or use `/form apply` to open a response
 - Finish the response to make sure everything's working
 
 You're all set! The bot should now function properly.
