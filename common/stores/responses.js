@@ -202,6 +202,54 @@ class ResponseStore extends DataStore {
 		return data.rows.length > 0;
 	}
 
+	async getPendingResponse(server, user, form) {
+		try {
+			var data = await this.db.query(`
+				SELECT * FROM responses 
+				WHERE server_id = $1 AND user_id = $2 AND form = $3 AND status = 'pending'
+				LIMIT 1
+			`, [server, user, form]);
+		} catch(e) {
+			logger.error(`responses store error: ${e.message}`);
+			return Promise.reject(e.message);
+		}
+		
+		if (data.rows?.[0]) {
+			var resp = new Response(this, KEYS, data.rows[0]);
+			var formObj = await this.bot.stores.forms.get(data.rows[0].server_id, data.rows[0].form);
+			if (formObj) resp.form = formObj;
+			
+			return resp;
+		}
+		return null;
+	}
+
+	async getAllPendingByUser(server, user) {
+		try {
+			var data = await this.db.query(`
+				SELECT * FROM responses 
+				WHERE server_id = $1 AND user_id = $2 AND status = 'pending'
+			`, [server, user]);
+		} catch(e) {
+			logger.error(`responses store error: ${e.message}`);
+			return Promise.reject(e.message);
+		}
+		
+		if (!data.rows?.length) return [];
+		
+		var results = [];
+		for (var row of data.rows) {
+			var resp = new Response(this, KEYS, row);
+			var form = await this.bot.stores.forms.get(row.server_id, row.form);
+			if (form) {
+				resp.form = form;
+				results.push({ response: resp, form });
+			}
+		}
+		
+		return results;
+	}
+
 	async getByForm(server, hid) {
 		try {
 			var data = await this.db.query(`SELECT * FROM responses WHERE server_id = $1 AND form = $2`,[server, hid]);

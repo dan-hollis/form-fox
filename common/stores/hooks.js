@@ -34,7 +34,7 @@ class HookStore extends DataStore {
 		
 		// custom events
 		EVENTS.forEach(e => {
-			this.bot.on(e.toUpperCase(), async (response) => {
+			this.bot.on(e.toUpperCase(), async (response, acceptanceType, acceptanceMessage) => {
 				var hooks = await this.getByForm(response.server_id, response.form.hid);
 				if(!hooks?.[0]) return;
 				hooks = hooks.filter(h => h.events.includes(e));
@@ -44,6 +44,12 @@ class HookStore extends DataStore {
 					var data = {
 						action: e,
 						response
+					}
+
+					// Add acceptance information for accept events
+					if (e === 'accept' && acceptanceType) {
+						data.acceptance_type = acceptanceType;
+						data.acceptance_message = acceptanceMessage;
 					}
 
 					try {

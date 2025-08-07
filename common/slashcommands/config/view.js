@@ -112,6 +112,21 @@ class Command extends SlashCommand {
 				`**Opped Users & Roles:**\n${opsText}`
 		});
 
+		// Dropdown Options Section
+		var dropdownText = 'Using default options';
+		if(cfg.dropdown_options && cfg.dropdown_options.length > 0) {
+			var acceptOptions = cfg.dropdown_options.filter(opt => opt.value.startsWith('accept_'));
+			var denyOptions = cfg.dropdown_options.filter(opt => opt.value.startsWith('deny_'));
+			dropdownText = `**Accept Options:** ${acceptOptions.length}\n**Deny Options:** ${denyOptions.length}\n*Use \`/config dropdown view\` for details*`;
+		}
+		
+		configSections.push({
+			type: 10,
+			content:
+				'## Response Dropdown\n' +
+				dropdownText
+		});
+
 		return [{
 			components: [{
 				type: 17,

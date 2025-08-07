@@ -150,26 +150,35 @@ module.exports = {
 	responseBtns: [
 		{
 			type: 2,
-			style: 3,
-			label: 'Accept',
-			custom_id: 'accept',
-			emoji: {name: '✅'}
-		},
-		{
-			type: 2,
-			style: 4,
-			label: 'Deny',
-			custom_id: 'deny',
-			emoji: {name: '❌'}
-		},
-		{
-			type: 2,
 			style: 2,
 			label: 'Ticket',
 			custom_id: 'ticket',
 			emoji: {name: '🎟️'}
 		}
 	],
+	getResponseDropdown: (config) => {
+		var options = config?.dropdown_options || [
+			{
+				label: 'Accept',
+				value: 'accept_approved',
+				description: 'Accept the response',
+				emoji: {name: '✅'}
+			},
+			{
+				label: 'Deny',
+				value: 'deny_rejected',
+				description: 'Deny the response',
+				emoji: {name: '❌'}
+			}
+		];
+
+		return {
+			type: 3,
+			custom_id: 'response_action',
+			placeholder: 'Select an action for this response...',
+			options: options
+		};
+	},
 	pageBtns: (ind, len) => {
 		return [
 			{

@@ -14,7 +14,8 @@ const KEYS = {
 	ticket_roles: { patch: true },
 	autodm: { patch: true },
 	autothread: { patch: true },
-	msg_ephemeral: { patch: true }
+	msg_ephemeral: { patch: true },
+	dropdown_options: { patch: true }
 }
 
 class Config extends DataObject {	
@@ -35,6 +36,14 @@ class Config extends DataObject {
 				this.opped = JSON.parse(this.opped);
 			} catch(e) {
 				this.opped = { users: [], roles: [] };
+			}
+		}
+		
+		if(this.dropdown_options && typeof this.dropdown_options === 'string') {
+			try {
+				this.dropdown_options = JSON.parse(this.dropdown_options);
+			} catch(e) {
+				this.dropdown_options = null;
 			}
 		}
 	}
@@ -59,12 +68,19 @@ class ConfigStore extends DataStore {
 			ticket_roles		JSONB,
 			autodm 				TEXT,
 			autothread			BOOLEAN,
-			msg_ephemeral		BOOLEAN
+			msg_ephemeral		BOOLEAN,
+			dropdown_options	JSONB
 		)`)
 		
-		// Add msg_ephemeral column if it doesn't exist (for existing databases)
+		// Add columns if they don't exist (for existing databases)
 		try {
 			await this.db.query('ALTER TABLE configs ADD COLUMN IF NOT EXISTS msg_ephemeral BOOLEAN')
+		} catch(e) {
+			// Column likely already exists, ignore error
+		}
+		
+		try {
+			await this.db.query('ALTER TABLE configs ADD COLUMN IF NOT EXISTS dropdown_options JSONB')
 		} catch(e) {
 			// Column likely already exists, ignore error
 		}
@@ -83,13 +99,14 @@ class ConfigStore extends DataStore {
 				ticket_message,
 				autodm,
 				autothread,
-				msg_ephemeral
-			) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+				msg_ephemeral,
+				dropdown_options
+			) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
 			RETURNING id`,
 			[data.server_id, data.response_channel,
 			 data.message, data.reacts ?? true,
 			 data.embed ?? true, data.opped ?? {roles: [], users: []}, data.ticket_category,
-			 data.ticket_message, data.autodm, data.autothread, data.msg_ephemeral]);
+			 data.ticket_message, data.autodm, data.autothread, data.msg_ephemeral, data.dropdown_options]);
 		} catch(e) {
 			logger.error(`config store error: ${e.message}`);
 	 		return Promise.reject(e.message);
@@ -111,12 +128,13 @@ class ConfigStore extends DataStore {
 				ticket_message,
 				autodm,
 				autothread,
-				msg_ephemeral
-			) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+				msg_ephemeral,
+				dropdown_options
+			) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
 			[server, data.response_channel,
 			 data.message, data.reacts ?? true,
 			 data.embed ?? true, data.opped ?? {roles: [], users: []}, data.ticket_category,
-			 data.ticket_message, data.autodm, data.autothread, data.msg_ephemeral]);
+			 data.ticket_message, data.autodm, data.autothread, data.msg_ephemeral, data.dropdown_options]);
 		} catch(e) {
 			logger.error(`config store error: ${e.message}`);
 	 		return Promise.reject(e.message);
@@ -156,7 +174,7 @@ class ConfigStore extends DataStore {
 			// Handle JSONB fields by stringifying them
 			var processedData = {};
 			for(let [key, value] of Object.entries(data)) {
-				if(key === 'ticket_roles' || key === 'opped') {
+				if(key === 'ticket_roles' || key === 'opped' || key === 'dropdown_options') {
 					processedData[key] = JSON.stringify(value);
 				} else {
 					processedData[key] = value;

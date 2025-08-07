@@ -86,7 +86,8 @@ class Command extends SlashCommand {
                 }]
             });
 
-            this.#bot.emit('ACCEPT', post.response);
+            // Emit ACCEPT event (without specific acceptance type for basic accept)
+            this.#bot.emit('ACCEPT', post.response, 'approved', 'Accepted');
             await post.delete()
         } catch(e) {
             logger.error(`Response acceptance error: ${e.message}`);

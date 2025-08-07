@@ -1,6 +1,7 @@
 const {
 	qButtons: QBTNS,
 	responseBtns: RESPBTNS,
+	getResponseDropdown: GET_RESP_DROPDOWN,
 	pageBtns: PGBTNS,
 	submitBtns: SUBMIT,
 	confBtns: CONF,
@@ -372,6 +373,7 @@ class ResponseHandler {
 				flags: ['IsComponentsV2'],
 				components: [
 					embeds[0],
+					{ type: 1, components: [GET_RESP_DROPDOWN(config)] },
 					{ type: 1, components: RESPBTNS }
 				]
 			}
@@ -739,7 +741,7 @@ class ResponseHandler {
 			question,
 			config,
 			action: act,
-			data: (question && ['att', 'img', 'text'].includes(question.type)) ? message : message.content
+			data: (question && ['att', 'img', 'text', 'link'].includes(question.type)) ? message : message.content
 		})
 	}
 

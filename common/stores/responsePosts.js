@@ -189,7 +189,7 @@ class ResponsePostStore extends DataStore {
 	}
 
 	async handleInteractions(ctx) {
-		if(!ctx.isButton()) return;
+		if(!ctx.isButton() && !ctx.isStringSelectMenu()) return;
 		if(!ctx.guild) return;
 
 		var post = await this.get(ctx.channel.guild.id, ctx.channel.id, ctx.message.id);
@@ -212,6 +212,13 @@ class ResponsePostStore extends DataStore {
 
 		var ticket = await this.bot.stores.tickets.get(msg.guild.id, post.response.hid);
 		var cmp = msg.components;
+		
+		// Handle dropdown selections
+		if(ctx.customId === 'response_action') {
+			return await this.handleResponseAction(ctx, post, u2, ticket, msg, user);
+		}
+		
+		// Handle button clicks
 		switch(ctx.customId) {
 			case 'deny':
 				await ctx.deferUpdate();
@@ -547,6 +554,233 @@ class ResponsePostStore extends DataStore {
 			await post.save();
 			return;
 		}
+	}
+
+	async handleResponseAction(ctx, post, u2, ticket, msg, user) {
+		await ctx.deferUpdate();
+		
+		var selectedAction = ctx.values[0];
+		var actionType = selectedAction.split('_')[0]; // 'accept' or 'deny'
+		var actionReason = selectedAction.split('_').slice(1).join('_'); // everything after the first underscore
+		
+		var config = await this.bot.stores.configs.get(ctx.guild.id);
+		var embed = msg.components[0].toJSON();
+		
+		if (actionType === 'accept') {
+			// Handle accept actions
+			embed.accent_color = parseInt('55aa55', 16);
+			let footer = embed.components[embed.components.length - 1];
+			footer.content = footer.content.replace('pending', 'accepted');
+			
+			var acceptMessage = this.getAcceptMessage(actionReason, config);
+			embed.components = embed.components.concat([
+				{
+					type: 14
+				},
+				{
+					type: 10,
+					content: `-# Response accepted (${acceptMessage}) <t:${Math.floor(new Date().getTime() / 1000)}:F>`
+				},
+				{
+					type: 10,
+					content: `-# Accepted by ${user} (${user.tag} | ${user.id})`
+				}
+			]);
+
+			try {
+				if(ticket?.id) {
+					try {
+						var tch = await ctx.guild.channels.fetch(ticket.channel_id);
+						await tch?.delete();
+					} catch(e) { }
+				}
+
+				post.response.status = 'accepted';
+				post.response.acceptance_type = actionReason;
+				post.response = await post.response.save();
+
+				// Emit ACCEPT event with acceptance information
+				this.bot.emit('ACCEPT', post.response, actionReason, acceptMessage);
+				await msg.edit({
+					components: [embed]
+				});
+				await msg.reactions.removeAll();
+
+				await post.delete();
+
+				var welc = post.response.form.message;
+				if(welc) {
+					for(var key of Object.keys(VARIABLES)) {
+						welc = welc.replace(key, VARIABLES[key](u2, msg.guild, post.response.form, post.response));
+					}
+				}
+
+				// Send user notification with acceptance type
+				await u2.send({
+					flags: ['IsComponentsV2'],
+					components: [{
+						type: 17,
+						accent_color: parseInt('55aa55', 16),
+						components: [
+							{
+								type: 10,
+								content: `## Response accepted! (${acceptMessage})\n${welc ?? ''}`
+							},
+							{
+								type: 10,
+								content:
+									`**Server:** ${msg.channel.guild.name} (${msg.channel.guild.id})\n` +
+									`**Form:** ${post.response.form?.name || 'Unknown'} (${post.response.form?.hid || 'Unknown'})\n` +
+									`**Response ID:** ${post.response.hid}` 
+							},
+							{
+								type: 10,
+								content: `-# Received <t:${Math.floor(new Date().getTime() / 1000)}:F>`
+							}
+						]
+					}]
+				});
+
+				// Note: Webhook is now sent via the ACCEPT event handler in hooks.js
+				
+			} catch(e) {
+				logger.error(`response posts store error: ${e.message}`);
+				return await msg.channel.send(`ERR! ${e.message || e}\n(Response still accepted!)`);
+			}
+		} else if (actionType === 'deny') {
+			// Handle deny actions
+			var denyMessage = this.getDenyMessage(actionReason, config);
+			var reason = denyMessage;
+			
+			// For 'other' reason, ask for custom input
+			if (actionReason === 'other') {
+				var m = await msg.channel.send({
+					flags: ['IsComponentsV2'],
+					components: [
+						{
+							type: 17,
+							components: [{
+								type: 10,
+								content: 'Please provide a custom denial reason:'
+							}]
+						},
+						...DENY(false)
+					],
+					fetchReply: true
+				});
+
+				var resp = await this.bot.utils.getChoice(this.bot, m, user, 2 * 60 * 1000, false);
+				if(!resp.choice) return await ctx.followUp({content: 'Err! Nothing selected!', ephemeral: true});
+				
+				if(resp.choice === 'cancel') {
+					await m.delete();
+					return resp.interaction.reply({content: 'Action cancelled!', ephemeral: true});
+				} else if(resp.choice === 'reason') {
+					var mod = await this.bot.utils.awaitModal(resp.interaction, MODALS.DENY(reason), user, true, 5 * 60_000);
+					if(mod) reason = mod.fields.getTextInputValue('reason')?.trim();
+					await mod.followUp("Modal received!");
+				}
+				
+				await m.delete();
+			}
+
+			embed.accent_color = parseInt('aa5555', 16);
+			embed.components = embed.components.concat([
+				{
+					type: 14
+				},
+				{
+					type: 10,
+					content: `Response denied (${denyMessage}) <t:${Math.floor(new Date().getTime() / 1000)}:F>`
+				},
+				{
+					type: 10,
+					content: `Denied by ${user} (${user.tag} | ${user.id})`
+				}
+			]);
+
+			try {
+				this.bot.emit('DENY', post.response);
+				if(ticket?.id) {
+					try {
+						var tch = await ctx.guild.channels.fetch(ticket.channel_id);
+						await tch?.delete();
+					} catch(e) { }
+				}
+
+				post.response.status = 'denied';
+				post.response.denial_reason = reason;
+				post.response = await post.response.save();
+				await msg.edit({
+					components: [embed]
+				});
+				await msg.reactions.removeAll();
+
+				await post.delete();
+
+				await u2.send({
+					flags: ['IsComponentsV2'],
+					components: [{
+						type: 17,
+						accent_color: parseInt('aa5555', 16),
+						components: [
+							{
+								type: 10,
+								content: `## Response denied!\n${reason ?? '*(no reason given)*'}`
+							},
+							{
+								type: 10,
+								content:
+									`**Server:** ${ctx.guild.name} (${ctx.guild.id})\n` +
+									`**Form:** ${post.response.form?.name || 'Unknown'} (${post.response.form?.hid || 'Unknown'})\n` +
+									`**Response ID:** ${post.response.hid}` 
+							},
+							{
+								type: 10,
+								content: `-# Received <t:${Math.floor(new Date().getTime() / 1000)}:F>`
+							}
+						]
+					}]
+				});
+			} catch(e) {
+				logger.error(`response posts store error: ${e.message}`);
+				return await msg.channel.send('ERR! Response denied, but couldn\'t message the user!');
+			}
+		}
+
+		return await ctx.followUp({content: `Response ${actionType}ed!`, ephemeral: true});
+	}
+	
+	getAcceptMessage(actionReason, config) {
+		// Get custom options if available
+		if(config?.dropdown_options) {
+			var acceptOption = config.dropdown_options.find(opt => opt.value === `accept_${actionReason}`);
+			if(acceptOption) {
+				return acceptOption.label.replace('Accept - ', ''); // Remove the prefix for display
+			}
+		}
+		
+		// Fallback to default mappings
+		const acceptMessages = {
+			'approved': 'Approved'
+		};
+		return acceptMessages[actionReason] || 'Approved';
+	}
+	
+	getDenyMessage(actionReason, config) {
+		// Get custom options if available
+		if(config?.dropdown_options) {
+			var denyOption = config.dropdown_options.find(opt => opt.value === `deny_${actionReason}`);
+			if(denyOption) {
+				return denyOption.label.replace('Deny - ', ''); // Remove the prefix for display
+			}
+		}
+		
+		// Fallback to default mappings
+		const denyMessages = {
+			'rejected': 'Denied'
+		};
+		return denyMessages[actionReason] || 'Denied';
 	}
 }
 

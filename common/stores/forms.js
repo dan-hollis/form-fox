@@ -201,6 +201,10 @@ class Form extends DataObject {
 			},
 			{
 				type: 10,
+				content: `### Ticket Message\n${this.ticket_msg ?? '*(not set)*'}`
+			},
+			{
+				type: 10,
 				content: `### Channel\n${this.channel_id ? `<#${this.channel_id}>` : '*(not set)*'}`
 			},
 			{

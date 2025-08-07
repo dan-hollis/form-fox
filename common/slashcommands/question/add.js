@@ -47,11 +47,18 @@ class Command extends SlashCommand {
 					description: "Where to put the question. Leave empty for last",
 					type: 4,
 					required: false
+				},
+				{
+					name: 'domain',
+					description: "For link questions: force a specific domain (e.g., google.com)",
+					type: 3,
+					required: false
 				}
 			],
 			usage: [
 				"[form_id] [question] [type] [required] - Add a new question to a form",
-				"[form_id] [question] [type] [required] [position] - Add a new question to a form and set its position"
+				"[form_id] [question] [type] [required] [position] - Add a new question to a form and set its position",
+				"[form_id] [question] link [required] [position] [domain] - Add a link question with optional domain restriction"
 			],
 		})
 		this.#bot = bot;
@@ -69,6 +76,7 @@ class Command extends SlashCommand {
 		var type = ctx.options.getString('type');
 		var required = ctx.options.getBoolean('required');
 		var pos = ctx.options.getInteger('position', false);
+		var domain = ctx.options.getString('domain', false);
 
 		if(pos == null || isNaN(pos) || pos > form.questions.length)
 			pos = form.questions.length + 1;
@@ -78,6 +86,20 @@ class Command extends SlashCommand {
 			type,
 			required,
 			options: { }
+		}
+
+		// Handle domain restriction for link questions
+		if(type === 'link' && domain) {
+			// Clean the domain input
+			domain = domain.trim().toLowerCase();
+			// Remove protocol if provided
+			domain = domain.replace(/^https?:\/\//, '');
+			// Remove trailing slash
+			domain = domain.replace(/\/$/, '');
+			
+			if(domain) {
+				question.options.requiredDomain = domain;
+			}
 		}
 
 		if(TYPES[type].setup) {
